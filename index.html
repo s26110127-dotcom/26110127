@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen</title>
+  </head>
+  <body>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sultry Portfolio | 網頁程式作品集入口</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Playfair Display for headers & Inter for body -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        velvet: {
+                            900: '#0d0208',
+                            800: '#190a14',
+                            700: '#2b0c1e',
+                            600: '#43122c',
+                        },
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            glow: '#d4af37',
+                        },
+                        roseGlow: '#ff2a6d',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 15px rgba(212, 175, 55, 0.3), 0 0 30px rgba(255, 42, 109, 0.2)' },
+                            '100%': { boxShadow: '0 0 25px rgba(212, 175, 55, 0.6), 0 0 50px rgba(255, 42, 109, 0.4)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at 50% 20%, #2b0c1e 0%, #190a14 50%, #0d0208 100%);
+            background-attachment: fixed;
+            color: #f3f4f6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ambient glowing dots canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glassmorphism styling */
+        .glass-card {
+            background: rgba(25, 10, 20, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+        }
+
+        .glass-card-active {
+            background: linear-gradient(135deg, rgba(67, 18, 44, 0.6) 0%, rgba(25, 10, 20, 0.7) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card-active:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(255, 215, 0, 0.8);
+            box-shadow: 0 12px 35px rgba(255, 42, 109, 0.25), 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .glass-card-locked {
+            background: rgba(15, 5, 12, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0.65;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card-locked:hover {
+            opacity: 0.85;
+            border-color: rgba(255, 42, 109, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Gold Gradient Text */
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #fff2a3 0%, #d4af37 50%, #aa7c11 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-sultry-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #fbcfe8 50%, #f43f5e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Shimmer effect for active buttons */
+        .shimmer-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shimmer-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                60deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.15) 50%,
+                transparent 70%
+            );
+            transform: rotate(30deg);
+            transition: transform 0.8s ease;
+        }
+
+        .shimmer-btn:hover::after {
+            transform: rotate(30deg) translate(50%, 50%);
+        }
+
+        /* Toast notification styling */
+        #toast {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative font-sans text-gray-200 antialiased selection:bg-rose-900 selection:text-gold-300">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Main Container -->
+    <div class="relative z-10 container mx-auto px-4 py-12 md:py-16 max-w-6xl flex-grow flex flex-col items-center">
+        
+        <!-- Profile Header Section -->
+        <header class="text-center mb-12 md:mb-16 flex flex-col items-center">
+            
+            <!-- Avatar Frame with Glowing Aura -->
+            <div class="relative group mb-6">
+                <!-- Glowing Aura Layer -->
+                <div class="absolute -inset-1.5 rounded-full bg-gradient-to-r from-amber-500 via-rose-600 to-purple-600 opacity-75 blur-md group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
+                
+                <!-- Avatar Image Container -->
+                <div class="relative w-32 h-32 md:w-36 md:h-36 rounded-full p-1 bg-gradient-to-tr from-yellow-600 via-rose-500 to-purple-900 shadow-2xl">
+                    <img 
+                        src=https://www.google.com/search?sca_esv
+                      https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEikcwM3Ur3BrrIVIWokrMMLQFDP7KAwO9lajvdZG2E8izgbCFFPgHViU4RECVGVgwTurZznbcp0NWH0g3K0-McojdcV3r1-nmsS2uU6IZJwa8gEdYojkH9l-Yjtk0rj5_dspdsJ_wd2vafaMTu3qIaQae3M9nPG4I8M352HmGNcsWVBq4L0UEj5heyo7SYS/s2162/stress%20toy2.png" 
+                        alt="Profile Avatar" 
+                        class="w-full h-full object-cover rounded-full border-2 border-velvet-900 filter brightness-95 contrast-105 group-hover:scale-105 transition duration-500"
+                        onerror="this.src='https://placehold.co/200x200/2b0c1e/d4af37?text=Alex'"
+                    >
+                </div>
+
+                <!-- Online Status / Badge -->
+                <div class="absolute bottom-1 right-1 bg-velvet-900 p-1.5 rounded-full border border-gold-500/50">
+                    <span class="block w-3.5 h-3.5 bg-rose-500 rounded-full animate-ping absolute opacity-75"></span>
+                    <span class="block w-3.5 h-3.5 bg-rose-500 rounded-full"></span>
+                </div>
+            </div>
+
+            <!-- Name and Title -->
+            <h1 class="text-3xl md:text-5xl font-serif font-bold tracking-wider mb-2 text-sultry-gradient">
+                Alex Chen
+            </h1>
+            <p class="text-gold-gradient font-medium tracking-widest text-sm md:text-base uppercase mb-3">
+                <i class="fa-solid fa-gem text-xs mr-1 text-gold-400"></i> Web Engineering Portfolio
+            </p>
+            
+            <!-- Bio / Subtitle -->
+            <p class="text-gray-400 max-w-md text-xs md:text-sm font-light leading-relaxed">
+                微醺暗夜下的程式美學 ‧ 闖關解鎖我的前端全棧修練之旅
+            </p>
+            
+            <!-- Decorative Divider -->
+            <div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-gold-500/50 to-transparent my-6"></div>
+        </header>
+
+        <!-- Portfolio Grid Section -->
+        <main class="w-full">
+            <div class="flex items-center justify-between mb-6 px-2">
+                <h2 class="text-lg font-serif font-semibold text-gray-300 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-gold-400 text-sm"></i> 課程任務關卡
+                </h2>
+                <span class="text-xs text-gray-400 bg-velvet-800/80 px-3 py-1 rounded-full border border-white/10">
+                    已解鎖 <span class="text-gold-400 font-bold">2</span> / 16
+                </span>
+            </div>
+
+            <!-- RWD Grid: 1 col (mobile), 2 cols (sm), 3 cols (md), 4 cols (lg) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+                
+                <!-- BUTTON 1: Unlocked -->
+                <a href="w1/index.html" class="glass-card-active shimmer-btn rounded-xl p-5 flex flex-col justify-between h-36 group relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold tracking-widest text-gold-400 uppercase bg-gold-500/10 border border-gold-500/30 px-2.5 py-1 rounded-md">
+                            WEEK 01
+                        </span>
+                        <div class="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-300 group-hover:bg-rose-500 group-hover:text-white transition duration-300">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-base text-gray-100 group-hover:text-gold-300 transition-colors">
+                            數位名片
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-1">個人品牌與風格定位</p>
+                    </div>
+                    <!-- Ambient Glow Effect inside Card -->
+                    <div class="absolute -right-6 -bottom-6 w-20 h-20 bg-rose-600/20 rounded-full blur-xl group-hover:bg-gold-500/20 transition duration-500"></div>
+                </a>
+
+                <!-- BUTTON 2: Unlocked -->
+                <a href="w2/index.html" class="glass-card-active shimmer-btn rounded-xl p-5 flex flex-col justify-between h-36 group relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold tracking-widest text-gold-400 uppercase bg-gold-500/10 border border-gold-500/30 px-2.5 py-1 rounded-md">
+                            WEEK 02
+                        </span>
+                        <div class="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-300 group-hover:bg-rose-500 group-hover:text-white transition duration-300">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-base text-gray-100 group-hover:text-gold-300 transition-colors">
+                            今天吃甚麼？
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-1">隨機美食選擇器</p>
+                    </div>
+                    <!-- Ambient Glow Effect inside Card -->
+                    <div class="absolute -right-6 -bottom-6 w-20 h-20 bg-rose-600/20 rounded-full blur-xl group-hover:bg-gold-500/20 transition duration-500"></div>
+                </a>
+
+                <!-- BUTTONS 3 - 16: Locked State -->
+                <!-- Helper JS will render button templates 3 to 16 cleanly -->
+                <div id="locked-buttons-container" class="contents"></div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification for Locked Buttons -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transform translate-y-4 transition-all duration-300">
+        <div class="glass-card bg-velvet-900/90 border-rose-500/50 text-rose-200 px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 border">
+            <i class="fa-solid fa-lock text-rose-400 text-sm"></i>
+            <span id="toast-msg" class="text-xs md:text-sm font-medium tracking-wide">該關卡尚未解鎖，敬請期待！</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="relative z-10 text-center py-6 text-xs text-gray-500 border-t border-white/5 mt-12">
+        <p>© 2026 Alex Chen • Web Programming Portfolio. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // 1. Dynamic Rendering of Locked Buttons 3 to 16
+        const lockedContainer = document.getElementById('locked-buttons-container');
+        const totalWeeks = 16;
+
+        for (let i = 3; i <= totalWeeks; i++) {
+            const weekNum = i < 10 ? `0${i}` : `${i}`;
+            const lockedCard = document.createElement('div');
+            lockedCard.className = 'glass-card-locked rounded-xl p-5 flex flex-col justify-between h-36 cursor-not-allowed group relative overflow-hidden select-none';
+            lockedCard.onclick = () => showLockedToast(i);
+
+            lockedCard.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold tracking-widest text-gray-500 uppercase bg-white/5 border border-white/10 px-2.5 py-1 rounded-md">
+                        WEEK ${weekNum}
+                    </span>
+                    <span class="text-base text-gray-500 group-hover:text-rose-400 transition-colors">
+                        🔒
+                    </span>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-base text-gray-400 group-hover:text-gray-300 transition-colors flex items-center gap-2">
+                        未解鎖關卡
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-1">Lock / Task Locked</p>
+                </div>
+                <div class="absolute inset-0 bg-rose-950/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            `;
+            lockedContainer.appendChild(lockedCard);
+        }
+
+        // 2. Toast Notification Logic
+        let toastTimeout;
+        function showLockedToast(weekIndex) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            
+            toastMsg.textContent = `🔒 Week ${weekIndex} 關卡未解鎖！請完成前期任務。`;
+            
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 2500);
+        }
+
+        // 3. Subtle Ambient Particle Background Effect
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                // Color tones: Gold & Soft Rose Gold
+                this.color = Math.random() > 0.5 ? '#d4af37' : '#ff2a6d';
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.floor((canvas.width * canvas.height) / 18000);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.onload = function() {
+            initParticles();
+            animateParticles();
+        };
+    </script>
+</body>
+</html>
